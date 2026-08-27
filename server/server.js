@@ -124,23 +124,36 @@ dotenv.config({ path: path.join(__dirname, ".env") });
 export const createApp = () => {
   const app = express();
 
+  const normalizeOrigin = (value) =>
+    String(value || "")
+      .trim()
+      .replace(/\/$/, "");
+
   const rawOrigins = process.env.CLIENT_URL || "";
   const allowedOrigins = rawOrigins
     .split(",")
-    .map((origin) => origin.trim())
+    .map((origin) => normalizeOrigin(origin))
     .filter(Boolean);
 
-  app.use(
-    cors({
-      origin: (origin, cb) => {
-        if (!origin) return cb(null, true);
-        if (allowedOrigins.includes(origin)) return cb(null, true);
-        return cb(new Error("Not allowed by CORS"));
-      },
-      credentials: true,
-      methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    })
-  );
+  const corsOptions = {
+    origin: (origin, cb) => {
+      if (!origin) return cb(null, true);
+
+      const requestOrigin = normalizeOrigin(origin);
+      if (allowedOrigins.includes(requestOrigin)) {
+        return cb(null, true);
+      }
+
+      return cb(null, false);
+    },
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+    optionsSuccessStatus: 204,
+  };
+
+  app.use(cors(corsOptions));
+  app.options(/.*/, cors(corsOptions));
 
   app.use(express.json());
   app.use(cookieParser());
