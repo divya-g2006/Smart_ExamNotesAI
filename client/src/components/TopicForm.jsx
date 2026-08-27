@@ -3,10 +3,9 @@
 import React, { useEffect, useState } from 'react'
 import { motion } from "motion/react"
 import { generateNotes } from '../services/api';
-import { useDispatch } from 'react-redux';
-import { updateCredits } from '../redux/userSlice';
 
 function TopicForm({ setResult, setLoading, loading, setError }) {
+  void motion;
   const [topic, setTopic] = useState("");
   const [classLevel, setClassLevel] = useState("");
   const [examType, setExamType] = useState("");
@@ -15,7 +14,6 @@ function TopicForm({ setResult, setLoading, loading, setError }) {
   const [includeChart, setIncludeChart] = useState(false);
   const [progress, setProgress] = useState(0);
   const [progressText, setProgressText] = useState("");
-  const dispatch = useDispatch()
 
   const handleSubmit = async () => {
     if (!topic.trim()) {
@@ -35,8 +33,6 @@ function TopicForm({ setResult, setLoading, loading, setError }) {
         includeChart
       })
 
-      // Server returns: { notes: string, result: object, creditsLeft, ... }
-      // Older versions returned { data: object, creditsLeft, ... }.
       const aiResult = response?.result ?? response?.data ?? response
       setResult(aiResult)
 
@@ -53,10 +49,6 @@ function TopicForm({ setResult, setLoading, loading, setError }) {
       setIncludeChart(false)
       setRevisionMode(false)
       setIncludeDiagram(false)
-
-      if (typeof response?.creditsLeft === "number") {
-        dispatch(updateCredits(response.creditsLeft));
-      }
 
     } catch (error) {
       console.log(error)

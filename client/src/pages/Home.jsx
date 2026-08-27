@@ -7,6 +7,7 @@ import Footer from '../components/Footer'
 import { useNavigate } from 'react-router-dom'
 
 function Home() {
+  void motion;
   const navigate = useNavigate()
   return (
     <div className='min-h-screen overflow-hidden bg-white text-blue-900'>

@@ -1,2 +1,2 @@
 const viteEnv = typeof import.meta !== "undefined" ? import.meta.env : undefined;
-export const serverUrl = (viteEnv && viteEnv.VITE_SERVER_URL) || "https://smart-notes-ai-ds13.onrender.com";
+export const serverUrl = ((viteEnv && viteEnv.VITE_SERVER_URL) || "").replace(/\/$/, "");

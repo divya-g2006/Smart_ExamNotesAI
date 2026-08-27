@@ -11,6 +11,7 @@ const isAdminAuth = (req, res, next) => {
 
     const cookieName = process.env.ADMIN_COOKIE_NAME || "admin_token";
     const token = req.cookies?.[cookieName];
+
     if (!token) {
       return res.status(401).json({ message: "Unauthorized" });
     }
@@ -28,4 +29,3 @@ const isAdminAuth = (req, res, next) => {
 };
 
 export default isAdminAuth;
-

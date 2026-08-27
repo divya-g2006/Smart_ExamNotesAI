@@ -223,12 +223,6 @@ export const generateNotes = async (req, res) => {
       return res.status(400).json({ message: "user is not found" });
     }
 
-    if (user.credits < 10) {
-      user.isCreditAvailable = false;
-      await user.save();
-      return res.status(403).json({ message: "Insufficient credits" });
-    }
-
     const prompt = buildPrompt({
       topic,
       classLevel,
@@ -268,8 +262,6 @@ export const generateNotes = async (req, res) => {
       content: aiResponse,
     });
 
-    user.credits -= 10;
-    if (user.credits <= 0) user.isCreditAvailable = false;
     if (!Array.isArray(user.notes)) user.notes = [];
     user.notes.push(notesDoc._id);
     await user.save();
@@ -279,7 +271,6 @@ export const generateNotes = async (req, res) => {
       notes: String(aiResponse?.notes || ""),
       result: aiResponse,
       noteId: notesDoc._id,
-      creditsLeft: user.credits,
       fallback: usedFallback,
     });
   } catch (error) {
@@ -292,4 +283,3 @@ export const generateNotes = async (req, res) => {
     });
   }
 };
-

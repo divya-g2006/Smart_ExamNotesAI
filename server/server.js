@@ -116,26 +116,18 @@ import authRouter from "./routes/auth.route.js";
 import userRouter from "./routes/user.route.js";
 import notesRouter from "./routes/genrate.route.js";
 import pdfRouter from "./routes/pdf.route.js";
-import creditRouter from "./routes/credits.route.js";
 import adminRouter from "./routes/admin.route.js";
-import paymentsRouter from "./routes/payments.route.js";
 
-// Setup __dirname for ES Modules
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
-// Load env file from server folder
 dotenv.config({ path: path.join(__dirname, ".env") });
 
 export const createApp = () => {
   const app = express();
 
-  // CORS setup
-  const rawOrigins =
-    process.env.CLIENT_URL || "http://localhost:5173,http://localhost:3000";
-
+  const rawOrigins = process.env.CLIENT_URL || "";
   const allowedOrigins = rawOrigins
     .split(",")
-    .map((s) => s.trim())
+    .map((origin) => origin.trim())
     .filter(Boolean);
 
   app.use(
@@ -153,26 +145,20 @@ export const createApp = () => {
   app.use(express.json());
   app.use(cookieParser());
 
-  // Test route
   app.get("/", (req, res) => {
-    res.json({ message: "ExamNotes AI Backend Running 🚀" });
+    res.json({ message: "ExamNotes AI Backend Running" });
   });
 
-  // Routes
   app.use("/api/auth", authRouter);
   app.use("/api/user", userRouter);
   app.use("/api/notes", notesRouter);
   app.use("/api/pdf", pdfRouter);
-  app.use("/api/credit", creditRouter);
   app.use("/api/admin", adminRouter);
-  app.use("/api/payments", paymentsRouter);
 
-  // 404 handler
   app.use((req, res) => {
     res.status(404).json({ message: "Not found" });
   });
 
-  // Error handler
   app.use((err, req, res, next) => {
     console.error("[server error]:", err);
     res.status(err.statusCode || 500).json({
@@ -187,9 +173,7 @@ export const startServer = async () => {
   const PORT = process.env.PORT || 8000;
   const app = createApp();
 
-  console.log("🚀 Starting server...");
-
-  // DB connection
+  console.log("Starting server...");
   app.locals.dbConnected = await connectDb({ retries: 3 });
 
   if (!app.locals.dbConnected) {
@@ -206,9 +190,6 @@ export const startServer = async () => {
   }
 
   app.listen(PORT, () => {
-    console.log(`✅ Server running on port ${PORT}`);
+    console.log(`Server running on port ${PORT}`);
   });
 };
-
-// ✅ IMPORTANT: actually start server
-startServer();

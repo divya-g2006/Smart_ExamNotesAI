@@ -1,10 +1,7 @@
 import dotenv from "dotenv";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import mongoose from "mongoose";
 import AdminModel from "../models/admin.model.js";
-import Payment from "../models/payment.model.js";
-import UserModel from "../models/user.model.js";
 
 dotenv.config();
 
@@ -60,7 +57,11 @@ export const adminLogin = async (req, res) => {
     const token = jwt.sign({ adminId: admin._id }, secret, { expiresIn: "7d" });
     setAdminCookie(res, token);
 
-    return res.status(200).json({ message: "Admin login successful", email: admin.email });
+    return res.status(200).json({
+      message: "Login successful",
+      email: admin.email,
+      token,
+    });
   } catch {
     return res.status(500).json({ message: "Login failed" });
   }
@@ -90,131 +91,3 @@ export const changeAdminAccount = async (req, res) => {
     return res.status(dup ? 409 : 500).json({ message: dup ? "Email already in use" : "Update failed" });
   }
 };
-
-export const listPendingPayments = async (req, res) => {
-  try {
-    const payments = await Payment.find({ status: "pending" })
-      .sort({ createdAt: 1 })
-      .populate("userId", "name email")
-      .lean();
-
-    return res.status(200).json({ payments });
-  } catch {
-    return res.status(500).json({ message: "Failed to fetch payments" });
-  }
-};
-
-export const approvePendingPayment = async (req, res) => {
-  const paymentId = req.params.id;
-  const session = await mongoose.startSession();
-  try {
-    let result = null;
-    await session.withTransaction(async () => {
-      const payment = await Payment.findOneAndUpdate(
-        { _id: paymentId, status: "pending" },
-        { $set: { status: "approved", decidedAt: new Date() } },
-        { new: true, session }
-      ).populate("userId", "name email credits");
-
-      if (!payment) {
-        const existing = await Payment.findById(paymentId).populate("userId", "name email credits").session(session);
-        if (!existing) {
-          const err = new Error("Payment not found");
-          err.statusCode = 404;
-          throw err;
-        }
-        if (existing.status === "approved") {
-          result = { payment: existing, already: true };
-          return;
-        }
-        if (existing.status === "rejected") {
-          const err = new Error("Payment already rejected");
-          err.statusCode = 400;
-          throw err;
-        }
-        const err = new Error("Payment could not be approved");
-        err.statusCode = 409;
-        throw err;
-      }
-
-      const creditsToAdd = Number(payment.credits);
-      if (!Number.isFinite(creditsToAdd) || creditsToAdd <= 0) {
-        const err = new Error("Invalid payment credits");
-        err.statusCode = 400;
-        throw err;
-      }
-
-      const user = await UserModel.findByIdAndUpdate(
-        payment.userId?._id || payment.userId,
-        { $inc: { credits: creditsToAdd } },
-        { new: true, session }
-      ).lean();
-
-      if (!user) {
-        const err = new Error("User not found");
-        err.statusCode = 404;
-        throw err;
-      }
-
-      result = { payment, user, already: false };
-    });
-
-    return res.status(200).json({
-      message: result?.already ? "Already approved" : "Payment approved",
-      payment: result?.payment,
-      user: result?.user,
-    });
-  } catch (e) {
-    return res.status(e.statusCode || 500).json({ message: e.message || "Approve failed" });
-  } finally {
-    session.endSession();
-  }
-};
-
-export const rejectPendingPayment = async (req, res) => {
-  const paymentId = req.params.id;
-  const session = await mongoose.startSession();
-  try {
-    let result = null;
-    await session.withTransaction(async () => {
-      const payment = await Payment.findOneAndUpdate(
-        { _id: paymentId, status: "pending" },
-        { $set: { status: "rejected", decidedAt: new Date() } },
-        { new: true, session }
-      ).populate("userId", "name email credits");
-
-      if (!payment) {
-        const existing = await Payment.findById(paymentId).populate("userId", "name email credits").session(session);
-        if (!existing) {
-          const err = new Error("Payment not found");
-          err.statusCode = 404;
-          throw err;
-        }
-        if (existing.status === "rejected") {
-          result = { payment: existing, already: true };
-          return;
-        }
-        if (existing.status === "approved") {
-          const err = new Error("Payment already approved (cannot reject)");
-          err.statusCode = 400;
-          throw err;
-        }
-        const err = new Error("Payment could not be rejected");
-        err.statusCode = 409;
-        throw err;
-      }
-
-      result = { payment, already: false };
-    });
-
-    return res.status(200).json({
-      message: result?.already ? "Already rejected" : "Payment rejected",
-      payment: result?.payment,
-    });
-  } catch (e) {
-    return res.status(e.statusCode || 500).json({ message: e.message || "Reject failed" });
-  } finally {
-    session.endSession();
-  }
-};
-

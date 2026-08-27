@@ -1,5 +1,4 @@
 import UserModel from "../models/user.model.js"
-import { getToken } from "../utils/token.js"
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
@@ -41,7 +40,8 @@ export const googleAuth = async (req,res) => {
         let user = await UserModel.findOne({email})
         if(!user){
             user = await UserModel.create({
-                name , email, credits: 50
+                name,
+                email
             })
         }
         const token = signUserJwt(user._id)
@@ -76,7 +76,6 @@ export const signup = async (req, res) => {
             name,
             email,
             password: passwordHash,
-            credits: 50,
         });
 
         const token = signUserJwt(user._id);

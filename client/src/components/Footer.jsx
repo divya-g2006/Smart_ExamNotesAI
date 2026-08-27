@@ -4,9 +4,10 @@ import logo from "../assets/logo.png"
 import { useNavigate } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
 import axios from 'axios'
-import { serverUrl } from '../App'
+import { serverUrl } from '../config.js'
 import { setUserData } from '../redux/userSlice'
 function Footer() {
+    void motion;
     const navigate = useNavigate()
      const dispatch = useDispatch()
         const handleSignOut = async () => {
@@ -63,7 +64,7 @@ function Footer() {
                     Notes
                 </li>
                 <li onClick={()=>navigate("/history")} className='text-gray-300 hover:text-white transition-colors'>History</li>
-                <li onClick={()=>navigate("/pricing")} className='text-gray-300 hover:text-white transition-colors'>Add Credits</li>
+                <li onClick={()=>navigate("/")} className='text-gray-300 hover:text-white transition-colors'>Home</li>
             </ul>
         </div>
  <div className='text-center'>

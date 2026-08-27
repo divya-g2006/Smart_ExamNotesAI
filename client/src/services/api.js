@@ -63,6 +63,7 @@ export const downloadPdf = async (result) => {
 
     window.URL.revokeObjectURL(url);
     } catch (error) {
+         void error;
          throw new Error("PDF download failed");
 
     }

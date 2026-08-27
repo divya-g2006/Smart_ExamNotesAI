@@ -2,15 +2,13 @@
 import React, { useState } from 'react'
 import { motion } from "motion/react"
 import { useNavigate } from 'react-router-dom'
-import { useSelector } from 'react-redux'
 import TopicForm from '../components/TopicForm'
 import Sidebar from '../components/Sidebar'
 import FinalResult from '../components/FinalResult'
 
 function Notes() {
+  void motion;
   const navigate = useNavigate()
-  const { userData } = useSelector((state) => state.user)
-  const credits = userData.credits
   const [loading,setLoading]= useState(false)
   const [result , setResult] = useState(null)
   const [error,setError] = useState("")
@@ -31,21 +29,6 @@ function Notes() {
         </div>
 
         <div className='flex items-center gap-4 flex-wrap'>
-          <button 
-            className='flex items-center gap-2 px-4 py-2 rounded-full bg-blue-700 text-white text-sm'
-            onClick={() => navigate("/pricing")}
-          >
-            <span className='text-xl'>💠</span>
-            <span>{credits}</span>
-            <motion.span 
-              whileHover={{ scale: 1.2 }}
-              whileTap={{ scale: 0.97 }}
-              className='ml-2 h-5 w-5 flex items-center justify-center rounded-full bg-white text-xs font-bold text-blue-900'
-            >
-              ➕
-            </motion.span>
-          </button>
-
           <button 
             onClick={()=>navigate("/history")} 
             className='px-4 py-3 rounded-full text-sm font-medium bg-blue-700 text-white flex items-center gap-2 hover:bg-blue-600 transition'
