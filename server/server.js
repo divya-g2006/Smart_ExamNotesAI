@@ -129,7 +129,12 @@ export const createApp = () => {
       .trim()
       .replace(/\/$/, "");
 
-  const rawOrigins = process.env.CLIENT_URL || "";
+  const rawOrigins = [
+    process.env.CLIENT_URL,
+    "https://smart-exam-notes-ai-2.vercel.app",
+  ]
+    .filter(Boolean)
+    .join(",");
   const allowedOrigins = rawOrigins
     .split(",")
     .map((origin) => normalizeOrigin(origin))
