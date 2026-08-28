@@ -64,6 +64,22 @@ IMPORTANCE RULES:
 - All three categories MUST be present
 - Base importance on exam frequency and weightage
 
+INTERVIEW QUESTION RULES:
+- questions.short should contain 3 to 5 short preparation questions
+- questions.long MUST contain at least 10 interview questions
+- Every item in questions.long must be topic-specific and unique
+- Each long question must include all of these sections in the same string:
+  - Question:
+  - Detailed Answer:
+  - Example:
+  - Interview Tip:
+- Answers must be detailed, technically accurate, easy to understand, and interview-ready
+- Mix basic, conceptual, practical, intermediate, advanced, and scenario-based questions
+- Do not make all questions simple definitions
+- Keep every question focused on the user's topic only
+- If the topic is narrow, still produce 10 meaningful and non-repetitive questions
+- If the topic is broad, produce more than 10 when useful
+
 DIAGRAM RULES:
 - If INCLUDE DIAGRAM is YES:
   - diagram.data MUST be a SINGLE STRING
